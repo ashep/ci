@@ -27,6 +27,9 @@ on:
         type: string
         required: false
         default: docker-compose.yaml
+      compose_project_name:
+        type: string
+        required: false
       ssh_host:
         type: string
         required: true
@@ -92,14 +95,20 @@ jobs:
             fi
           fi
 
-          DOCKER_IMAGE="${{ github.repository_owner }}/${{ inputs.app_name }}:${APP_VERSION}"
+          APP_IMAGE="${{ github.repository_owner }}/${{ inputs.app_name }}:${APP_VERSION}"
           if [ -n "${{ inputs.registry_host }}" ]; then
-            DOCKER_IMAGE="${{ inputs.registry_host }}/${DOCKER_IMAGE}"
+            APP_IMAGE="${{ inputs.registry_host }}/${APP_IMAGE}"
+          fi
+
+          COMPOSE_PROJECT_NAME="${APP_NAME}"
+          if [ -n "${{ inputs.compose_project_name }}" ]; then
+            COMPOSE_PROJECT_NAME="${{ inputs.compose_project_name }}"
           fi
 
           (cat <<EOF
           REGISTRY_HOST=${{ inputs.registry_host }}
-          DOCKER_IMAGE=${DOCKER_IMAGE}
+          APP_IMAGE=${APP_IMAGE}
+          COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
           APP_OWNER=${{ github.repository_owner }}
           APP_NAME=${{ inputs.app_name }}
           APP_VERSION=${APP_VERSION}

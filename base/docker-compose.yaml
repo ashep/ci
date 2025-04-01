@@ -1,7 +1,7 @@
-name: ${APP_NAME}
+name: ${COMPOSE_PROJECT_NAME}
 services:
   app:
-    image: ${DOCKER_IMAGE}
+    image: ${APP_IMAGE}
     restart: unless-stopped
     pull_policy: always
     ports:
