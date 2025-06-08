@@ -150,6 +150,11 @@ jobs:
           ssh-add ssh_id
           
           cd ${{ inputs.workdir }}
+          
+          if [ "${{ inputs.debug }}" == "true" ]; then
+            echo ".env contents:"
+            cat .env
+          fi
                     
           docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
           docker --context remote compose -f ${COMPOSE_FILENAME} up -d --build --always-recreate-deps --force-recreate --remove-orphans
