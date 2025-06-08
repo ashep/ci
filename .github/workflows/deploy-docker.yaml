@@ -162,6 +162,7 @@ jobs:
           docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
           
           if [ "${{ inputs.debug }}" == "true" ]; then
+            echo "docker compose config:"
             docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env config
           fi
           
