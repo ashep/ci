@@ -159,7 +159,7 @@ jobs:
             cat .env
           
             echo "Docker compose file contents:"
-            docker --context remote compose -f ${COMPOSE_FILENAME} config
+            docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env config
           fi
           
           docker --context remote compose -f ${COMPOSE_FILENAME} up -d --build --always-recreate-deps --force-recreate --remove-orphans
