@@ -99,7 +99,7 @@ jobs:
             APP_IMAGE="${{ inputs.registry_host }}/${APP_IMAGE}"
           fi
 
-          COMPOSE_PROJECT_NAME="${${{ inputs.compose_project_name }}//./_}"
+          COMPOSE_PROJECT_NAME=$(echo "${{ inputs.compose_project_name }}" | sed 's/\./_/g')
 
           (cat <<EOF
           REGISTRY_HOST=${{ inputs.registry_host }}
@@ -160,4 +160,9 @@ jobs:
           fi
           
           docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
+          
+          if [ "${{ inputs.debug }}" == "true" ]; then
+            docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env config
+          fi
+          
           docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env up -d --build --always-recreate-deps --force-recreate --remove-orphans
