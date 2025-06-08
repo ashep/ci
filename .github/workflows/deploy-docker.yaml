@@ -102,7 +102,7 @@ jobs:
           (cat <<EOF
           REGISTRY_HOST=${{ inputs.registry_host }}
           APP_IMAGE=${APP_IMAGE}
-          COMPOSE_PROJECT_NAME="${{ inputs.compose_project_name }}"
+          COMPOSE_PROJECT_NAME=${{ inputs.compose_project_name }}
           APP_OWNER=${{ github.repository_owner }}
           APP_NAME=${{ inputs.app_name }}
           APP_VERSION=${APP_VERSION}
@@ -151,10 +151,14 @@ jobs:
           
           cd ${{ inputs.workdir }}
           
+          docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
+          
           if [ "${{ inputs.debug }}" == "true" ]; then
             echo ".env contents:"
             cat .env
+          
+            echo "Docker compose file contents:"
+            docker --context remote compose config
           fi
-                    
-          docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
+          
           docker --context remote compose -f ${COMPOSE_FILENAME} up -d --build --always-recreate-deps --force-recreate --remove-orphans
