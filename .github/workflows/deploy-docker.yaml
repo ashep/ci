@@ -99,10 +99,12 @@ jobs:
             APP_IMAGE="${{ inputs.registry_host }}/${APP_IMAGE}"
           fi
 
+          COMPOSE_PROJECT_NAME="${${{ inputs.compose_project_name }}//./_}"
+
           (cat <<EOF
           REGISTRY_HOST=${{ inputs.registry_host }}
           APP_IMAGE=${APP_IMAGE}
-          COMPOSE_PROJECT_NAME=${{ inputs.compose_project_name }}
+          COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
           APP_OWNER=${{ github.repository_owner }}
           APP_NAME=${{ inputs.app_name }}
           APP_VERSION=${APP_VERSION}
