@@ -152,14 +152,10 @@ jobs:
           
           cd ${{ inputs.workdir }}
           
-          docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
-          
           if [ "${{ inputs.debug }}" == "true" ]; then
             echo ".env contents:"
             cat .env
-          
-            echo "Docker compose file contents:"
-            docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env config
           fi
           
-          docker --context remote compose -f ${COMPOSE_FILENAME} up -d --build --always-recreate-deps --force-recreate --remove-orphans
+          docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}:${{ inputs.ssh_port }}"
+          docker --context remote compose -f ${COMPOSE_FILENAME} --env-file .env up -d --build --always-recreate-deps --force-recreate --remove-orphans
