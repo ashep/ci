@@ -43,9 +43,11 @@ jobs:
       - name: Build app
         run: |
           cd ${{inputs.workdir}}
-          if [ ! -d node_modules ]; then npm ci; fi
-          echo -e "${{ secrets.dotenv }}" > .env
-          ${{ inputs.build_cmd }}
+          if [ -f package.lock ]; then
+            if [ ! -d node_modules ]; then npm ci; fi
+            echo -e "${{ secrets.dotenv }}" > .env
+            ${{ inputs.build_cmd }}
+          fi
       - name: Login to Docker registry
         uses: docker/login-action@v3
         with:
