@@ -26,9 +26,6 @@ on:
       compose_filename:
         type: string
         default: docker-compose.yaml
-      compose_project_name:
-        type: string
-        default: ${{ github.event.repository.name }}
       ssh_host:
         type: string
         required: true
@@ -99,7 +96,7 @@ jobs:
             APP_IMAGE="${{ inputs.registry_host }}/${APP_IMAGE}"
           fi
 
-          COMPOSE_PROJECT_NAME=$(echo "${{ inputs.compose_project_name }}" | sed 's/\./_/g')
+          COMPOSE_PROJECT_NAME=$(echo "${{ inputs.app_name }}" | sed 's/\./_/g')
 
           (cat <<EOF
           REGISTRY_HOST=${{ inputs.registry_host }}
