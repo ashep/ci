@@ -60,5 +60,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release
+          name: release-${{inputs.app_name}}-${{inputs.app_target}}
           path: ${{inputs.workdir}}/__release
