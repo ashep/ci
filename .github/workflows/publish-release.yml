@@ -1,0 +1,23 @@
+name: publish-release.yml
+on:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: ./__release
+      - uses: ncipollo/release-action@v1
+        if: ${{ github.ref_type == 'tag' }}
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: ./__release/*
+          generateReleaseNotes: true
+          makeLatest: ${{ !contains(github.ref_name, '-alpha') }}
+          prerelease: ${{ contains(github.ref_name, '-alpha') }}
+          removeArtifacts: true
+          replacesArtifacts: true

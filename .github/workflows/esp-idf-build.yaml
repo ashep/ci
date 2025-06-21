@@ -35,6 +35,15 @@ jobs:
               VER="${VER}-alpha${VER_ALPHA}"
           fi
           echo "APP_VERSION=${VER}" >> ${GITHUB_ENV}
+      - name: Check version info
+        if: ${{ github.ref_type == 'tag' }}
+        run: |
+          if [ "${{ github.ref_name }}" != "${APP_VERSION}" ]; then
+            echo "Version mismatch"
+            echo "tag: ${{github.ref_name}}"
+            echo "version.txt: ${APP_VERSION}"
+            exit 1
+          fi
       - name: Run pre-script
         shell: bash
         run: |
@@ -48,23 +57,8 @@ jobs:
           mkdir -p ./__release
           cp ./build/${{inputs.app_name}}.bin ./__release/${{inputs.app_name}}-${APP_VERSION}-${{inputs.app_target}}.bin
           cp ./build/bootloader/bootloader.bin ./__release/${{inputs.app_name}}-bootloader-${APP_VERSION}-${{inputs.app_target}}.bin
-      - name: Check version info
-        if: ${{ github.ref_type == 'tag' }}
-        run: |
-          if [ "${{ github.ref_name }}" != "${APP_VERSION}" ]; then
-            echo "Version mismatch"
-            echo "tag: ${{github.ref_name}}"
-            echo "version.txt: ${APP_VERSION}"
-            exit 1
-          fi
-      - uses: ncipollo/release-action@v1
-        if: ${{ github.ref_type == 'tag' }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          artifacts: ${{inputs.workdir}}/__release/*
-          generateReleaseNotes: true
-          makeLatest: ${{ !contains(github.ref_name, '-alpha') }}
-          prerelease: ${{ contains(github.ref_name, '-alpha') }}
-          removeArtifacts: true
-          replacesArtifacts: true
+          name: release
+          path: ${{inputs.workdir}}/__release
