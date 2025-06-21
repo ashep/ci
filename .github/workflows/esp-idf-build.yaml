@@ -31,7 +31,7 @@ jobs:
           VER=$(cat ${{inputs.workdir}}/version.txt | head -n 1)
           VER_ALPHA=$(echo $VER | awk -F "." '{print $4}')
           VER=$(echo $VER | awk -F "." '{print $1"."$2"."$3}')
-          if [ "${VER_ALPHA}" != "0" ]; then
+          if [ "${VER_ALPHA}" != "" ]; then
               VER="${VER}-alpha${VER_ALPHA}"
           fi
           echo "APP_VERSION=${VER}" >> ${GITHUB_ENV}
