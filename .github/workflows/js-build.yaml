@@ -43,7 +43,7 @@ jobs:
       - name: Build app
         run: |
           cd ${{inputs.workdir}}
-          if [ -f package.lock ]; then
+          if [ -f package-lock.json ]; then
             if [ ! -d node_modules ]; then npm ci; fi
             echo -e "${{ secrets.dotenv }}" > .env
             ${{ inputs.build_cmd }}
