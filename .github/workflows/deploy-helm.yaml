@@ -75,7 +75,7 @@ jobs:
           echo -e '${{ secrets.chart_values }}' > values.add.yaml
       - name: Deploy
         run: |
-          if [ -n "${{ inputs.ssh_host }}" -a -n "${{ inputs.ssh_user }}" -a -n "${{ secrets.ssh_key }}" ]; then
+          if [ -n "${{ inputs.ssh_host }}" -a -n "${{ inputs.ssh_user }}" ]; then
             mkdir -p ~/.ssh
             (cat <<EOF
             ${{ secrets.ssh_key }}
