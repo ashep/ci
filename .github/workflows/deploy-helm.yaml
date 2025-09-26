@@ -20,10 +20,27 @@ on:
         type: string
         required: false
         default: ${{ github.event.repository.name }}
+      ssh_host:
+        type: string
+        required: false
+      ssh_port:
+        type: string
+        required: false
+        default: 22
+      ssh_user:
+        type: string
+        required: false
+      kube_port:
+        type: number
+        default: 6443
+        required: false
+
     secrets:
+      ssh_key:
+        required: false
       kubeconfig:
         required: true
-      values:
+      chart_values:
         required: false
 
 jobs:
@@ -55,9 +72,22 @@ jobs:
             git.sha: ${{ github.sha }}
           EOF
           ) > values.ci.yaml
-          echo -e '${{ secrets.values }}' > values.add.yaml
+          echo -e '${{ secrets.chart_values }}' > values.add.yaml
       - name: Deploy
         run: |
+          if [ -n "${{ inputs.ssh_host }}" -a -n "${{ inputs.ssh_user }}" -a -n "${{ secrets.ssh_key }}" ]; then
+            mkdir -p ~/.ssh
+            (cat <<EOF
+            ${{ secrets.ssh_key }}
+            EOF
+            ) > ssh_id
+            chmod 0600 ssh_id
+            eval $(ssh-agent -s)
+            ssh-keyscan -H -p "${{ inputs.ssh_port }}" "${{ inputs.ssh_host }}" > ~/.ssh/known_hosts
+            ssh-add ssh_id
+            ssh -p ${{ inputs.ssh_port }} -fNL ${{ inputs.kube_port }}:127.0.0.1:${{ inputs.kube_port }}
+          fi
+          
           NAMESPACE="${{ inputs.namespace }}"
-          if [ ! -z "${{ inputs.namespace_suffix }}" ]; then NAMESPACE="${NAMESPACE}-${{ inputs.namespace_suffix }}"; fi
+          if [ -n "${{ inputs.namespace_suffix }}" ]; then NAMESPACE="${NAMESPACE}-${{ inputs.namespace_suffix }}"; fi
           helm upgrade -i -n ${NAMESPACE} --create-namespace -f values.add.yaml -f values.ci.yaml ${{ inputs.release }} ${{ inputs.chart }}
