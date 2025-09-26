@@ -24,8 +24,10 @@ runs:
     - shell: bash
       run: |
         cd ${{ inputs.workdir }}
-        docker buildx build --platform linux/amd64 --load -t ${{ inputs.app_name }}:${{ github.sha }}-amd64 -f ${{ inputs.dockerfile }} .
-        docker buildx build --platform linux/arm64 --load -t ${{ inputs.app_name }}:${{ github.sha }}-arm64 -f ${{ inputs.dockerfile }} .
+        docker buildx build --platform linux/amd64 --load --build-arg ARCH=amd64 \
+          -t ${{ inputs.app_name }}:${{ github.sha }}-amd64 -f ${{ inputs.dockerfile }} .
+        docker buildx build --platform linux/arm64 --load --build-arg ARCH=arm64 \
+          -t ${{ inputs.app_name }}:${{ github.sha }}-arm64 -f ${{ inputs.dockerfile }} .
     - shell: bash
       run: |
         IMG_BASE_NAME="${{ inputs.registry_user }}/${{ inputs.app_name }}"
