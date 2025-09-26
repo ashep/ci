@@ -38,28 +38,8 @@ runs:
         echo "SHA_SHORT=$(git rev-parse --short "${{ github.sha }}")" >> ${{ github.env }}
     - shell: bash
       run: |
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-amd64
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-arm64
-                
         docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
         docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
-        
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
-        
-        if [ "${{ github.ref_name }}" == "main" ] || [ "${{ github.ref_name }}" == "master" ] ; then
-          docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:latest-amd64
-          docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:latest-arm64
-        fi
-    - shell: bash
-      run: |
-        docker push ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-amd64
-        docker push ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-arm64
-        docker manifest create ${{ env.IMG_BASE_NAME }}:${{ github.sha }} \
-          ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-amd64 \
-          ${{ env.IMG_BASE_NAME }}:${{ github.sha }}-arm64
-        docker manifest push ${{ env.IMG_BASE_NAME }}:${{ github.sha }}
-        
         docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
         docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
         docker manifest create ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }} \
@@ -67,6 +47,8 @@ runs:
           ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
         docker manifest push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}
         
+        docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
+        docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
         docker push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
         docker push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
         docker manifest create ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }} \
@@ -75,6 +57,8 @@ runs:
         docker manifest push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}
         
         if [ "${{ github.ref_name }}" == "main" ] || [ "${{ github.ref_name }}" == "master" ] ; then
+          docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:latest-amd64
+          docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:latest-arm64
           docker push ${{ env.IMG_BASE_NAME }}:latest-amd64
           docker push ${{ env.IMG_BASE_NAME }}:latest-arm64
           docker manifest create ${{ env.IMG_BASE_NAME }}:latest \
