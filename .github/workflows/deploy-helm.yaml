@@ -91,4 +91,8 @@ jobs:
           NAMESPACE="${{ inputs.namespace }}"
           if [ -n "${{ inputs.namespace_suffix }}" ]; then NAMESPACE="${NAMESPACE}-${{ inputs.namespace_suffix }}"; fi
           NAMESPACE="${NAMESPACE//./-}"
-          helm upgrade -i -n ${NAMESPACE} --create-namespace -f values.add.yaml -f values.ci.yaml ${{ inputs.release }} ${{ inputs.chart }}
+          
+          RELEASE="${{ inputs.release }}"
+          RELEASE="${RELEASE//./-}"
+          
+          helm upgrade -i -n ${NAMESPACE} --create-namespace -f values.add.yaml -f values.ci.yaml ${RELEASE} ${{ inputs.chart }}
