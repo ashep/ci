@@ -50,7 +50,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Helm
-        uses: azure/setup-helm@v4.0.0
+        uses: azure/setup-helm@v4.3.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create kubeconfig
@@ -90,4 +90,5 @@ jobs:
           
           NAMESPACE="${{ inputs.namespace }}"
           if [ -n "${{ inputs.namespace_suffix }}" ]; then NAMESPACE="${NAMESPACE}-${{ inputs.namespace_suffix }}"; fi
+          NAMESPACE="${NAMESPACE//./-}"
           helm upgrade -i -n ${NAMESPACE} --create-namespace -f values.add.yaml -f values.ci.yaml ${{ inputs.release }} ${{ inputs.chart }}
