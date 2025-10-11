@@ -39,6 +39,10 @@ jobs:
           repository: ashep/ci
           ref: v1
           path: .ci
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Setup go
         uses: actions/setup-go@v5
         with:
