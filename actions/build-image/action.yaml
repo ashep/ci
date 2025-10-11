@@ -23,11 +23,26 @@ runs:
   steps:
     - shell: bash
       run: |
+        APP_VERSION="${{ inputs.app_version }}"
+        if [ -z "$APP_VERSION" ]; then
+          if [ "${{ github.ref_type }}" == "tag" ]; then
+            APP_VERSION="${{ github.ref_name }}"
+          else
+            APP_VERSION=$(echo "${{ github.sha }}" | cut -c 1-7)
+          fi
+        fi
+        
         cd ${{ inputs.workdir }}
         docker buildx build --platform linux/amd64 --load \
+          --build-arg APP_NAME=${{ inputs.app_name }} \
+          --build-arg APP_VERSION=${APP_VERSION} \
           -t ${{ inputs.app_name }}:${{ github.sha }}-amd64 -f ${{ inputs.dockerfile }} .
+        
         docker buildx build --platform linux/arm64 --load \
+          --build-arg APP_NAME=${APP_NAME} \
+          --build-arg APP_VERSION=${APP_VERSION} \
           -t ${{ inputs.app_name }}:${{ github.sha }}-arm64 -f ${{ inputs.dockerfile }} .
+
     - shell: bash
       run: |
         IMG_BASE_NAME="${{ inputs.registry_user }}/${{ inputs.app_name }}"
@@ -36,6 +51,7 @@ runs:
         fi
         echo "IMG_BASE_NAME=${IMG_BASE_NAME}" >> ${{ github.env }}
         echo "SHA_SHORT=$(git rev-parse --short "${{ github.sha }}")" >> ${{ github.env }}
+
     - shell: bash
       run: |
         docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
