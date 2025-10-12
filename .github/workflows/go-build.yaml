@@ -38,7 +38,7 @@ jobs:
         with:
           repository: ashep/ci
           ref: v1
-          path: .ci
+          path: ${{inputs.workdir}}/.ci
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Buildx
@@ -61,7 +61,7 @@ jobs:
           registry: ${{ inputs.registry_host }}
           username: ${{ inputs.registry_user }}
           password: ${{ secrets.registry_password }}
-      - name: Build image
+      - name: Build and push Docker image
         uses: ashep/ci/actions/build-image@v1
         with:
           app_name: ${{ inputs.app_name }}
