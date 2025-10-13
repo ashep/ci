@@ -38,7 +38,7 @@ jobs:
         with:
           repository: ashep/ci
           ref: v1
-          path: ${{inputs.workdir}}/.ci
+          path: ./.ci
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Buildx
