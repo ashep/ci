@@ -17,6 +17,9 @@ inputs:
   registry_user:
     required: true
     description: Registry username
+  arm64_enabled:
+    required: false
+    description: Whether to build an ARM64 image
 
 runs:
   using: composite
@@ -38,10 +41,12 @@ runs:
           --build-arg APP_VERSION=${APP_VERSION} \
           -t ${{ inputs.app_name }}:${{ github.sha }}-amd64 -f ${{ inputs.dockerfile }} .
         
-        docker buildx build --platform linux/arm64 --load \
-          --build-arg APP_NAME=${APP_NAME} \
-          --build-arg APP_VERSION=${APP_VERSION} \
-          -t ${{ inputs.app_name }}:${{ github.sha }}-arm64 -f ${{ inputs.dockerfile }} .
+        if [ "${{ inputs.arm64_enabled }}" = "true" ]; then
+          docker buildx build --platform linux/arm64 --load \
+            --build-arg APP_NAME=${APP_NAME} \
+            --build-arg APP_VERSION=${APP_VERSION} \
+            -t ${{ inputs.app_name }}:${{ github.sha }}-arm64 -f ${{ inputs.dockerfile }} .
+        fi
 
     - shell: bash
       run: |
@@ -55,30 +60,51 @@ runs:
     - shell: bash
       run: |
         docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
-        docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
-        docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
-        docker manifest create ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }} \
-          ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64 \
-          ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
-        docker manifest push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}
-        
         docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
-        docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
+        docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
         docker push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
-        docker push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
-        docker manifest create ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }} \
-          ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64 \
-          ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
+        
+        if [ "${{ inputs.arm64_enabled }}" = "true" ]; then
+          docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
+          docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
+          docker push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
+          docker push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
+        fi
+        
+        if [ "${{ inputs.arm64_enabled }}" = "true" ]; then
+          docker manifest create ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }} \
+            ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64 \
+            ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-arm64
+          docker manifest create ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }} \
+            ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64 \
+            ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-arm64
+        else
+          docker manifest create ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }} \
+            ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}-amd64
+          docker manifest create ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }} \
+            ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}-amd64
+        fi
+        
+        docker manifest push ${{ env.IMG_BASE_NAME }}:${{ env.SHA_SHORT }}
         docker manifest push ${{ env.IMG_BASE_NAME }}:${{ github.ref_name }}
         
         if [ "${{ github.ref_name }}" == "main" ] || [ "${{ github.ref_name }}" == "master" ] ; then
           docker tag ${{ inputs.app_name }}:${{ github.sha }}-amd64 ${{ env.IMG_BASE_NAME }}:latest-amd64
-          docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:latest-arm64
           docker push ${{ env.IMG_BASE_NAME }}:latest-amd64
-          docker push ${{ env.IMG_BASE_NAME }}:latest-arm64
-          docker manifest create ${{ env.IMG_BASE_NAME }}:latest \
-            ${{ env.IMG_BASE_NAME }}:latest-amd64 \
-            ${{ env.IMG_BASE_NAME }}:latest-arm64
+
+          if [ "${{ inputs.arm64_enabled }}" = "true" ]; then
+            docker tag ${{ inputs.app_name }}:${{ github.sha }}-arm64 ${{ env.IMG_BASE_NAME }}:latest-arm64
+            docker push ${{ env.IMG_BASE_NAME }}:latest-arm64
+          fi
+          
+          if [ "${{ inputs.arm64_enabled }}" = "true" ]; then
+            docker manifest create ${{ env.IMG_BASE_NAME }}:latest \
+              ${{ env.IMG_BASE_NAME }}:latest-amd64 \
+              ${{ env.IMG_BASE_NAME }}:latest-arm64
+          else
+            docker manifest create ${{ env.IMG_BASE_NAME }}:latest \
+              ${{ env.IMG_BASE_NAME }}:latest-amd64
+          fi
+          
           docker manifest push ${{ env.IMG_BASE_NAME }}:latest
         fi
