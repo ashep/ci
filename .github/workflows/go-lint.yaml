@@ -10,18 +10,30 @@ on:
       govet_enabled:
         type: boolean
         default: true
+      govet_allow_failure:
+        type: boolean
+        default: false
       staticcheck_enabled:
         type: boolean
         default: true
+      staticcheck_allow_failure:
+        type: boolean
+        default: false
       govulncheck_enabled:
         type: boolean
         default: true
+      govulncheck_allow_failure:
+        type: boolean
+        default: false
       golangcilint_enabled:
         type: boolean
         default: true
+      golangcilint_allow_failure:
+        type: boolean
+        default: false
       golangcilint_version:
         type: string
-        default: 2.4.0
+        default: 2.5.0
     secrets:
       private_key:
         required: false
@@ -30,6 +42,7 @@ jobs:
   govet:
     runs-on: ubuntu-latest
     if: ${{ inputs.govet_enabled == true }}
+    continue-on-error: ${{ inputs.govet_allow_failure == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -44,6 +57,7 @@ jobs:
   staticcheck:
     runs-on: ubuntu-latest
     if: ${{ inputs.staticcheck_enabled == true }}
+    continue-on-error: ${{ inputs.staticcheck_allow_failure == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -59,6 +73,7 @@ jobs:
   govulncheck:
     runs-on: ubuntu-latest
     if: ${{ inputs.govulncheck_enabled == true }}
+    continue-on-error: ${{ inputs.govulncheck_allow_failure == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -74,6 +89,7 @@ jobs:
   golangcilint:
     runs-on: ubuntu-latest
     if: ${{ inputs.golangcilint_enabled == true }}
+    continue-on-error: ${{ inputs.golangcilint_allow_failure == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
