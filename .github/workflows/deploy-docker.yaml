@@ -72,12 +72,12 @@ jobs:
           path: .ci
       - name: Add .env variables
         run: |
-          (cat <<EOF
+          (cat <<'EOF'
           ${{ inputs.dotenv }}
           EOF
           ) >> ${{ inputs.workdir }}/.env
 
-          (cat <<EOF
+          (cat <<'EOF'
           ${{ secrets.dotenv }}
           EOF
           ) >> ${{ inputs.workdir }}/.env
@@ -139,7 +139,7 @@ jobs:
           fi
           echo COMPOSE_FILENAME=${COMPOSE_FILENAME}
 
-          (cat <<EOF
+          (cat <<'EOF'
           ${{ secrets.ssh_key }}
           EOF
           ) > ssh_id
