@@ -20,6 +20,9 @@ on:
         type: string
       registry_user:
         type: string
+      arm64_enabled:
+        type: boolean
+        default: false
     secrets:
       private_key:
         required: false
@@ -68,3 +71,4 @@ jobs:
           dockerfile: ${{ inputs.dockerfile }}
           registry_host: ${{ inputs.registry_host }}
           registry_user: ${{ inputs.registry_user }}
+          arm64_enabled: ${{ inputs.arm64_enabled }}
