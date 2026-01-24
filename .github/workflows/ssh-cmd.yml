@@ -1,0 +1,45 @@
+name: ssh-cmd
+on:
+  workflow_call:
+    inputs:
+      debug:
+        type: boolean
+        default: false
+      ssh_host:
+        type: string
+        required: true
+      ssh_port:
+        type: string
+        required: false
+        default: 22
+      ssh_user:
+        type: string
+        required: true
+      remote_workdir:
+        type: string
+        required: false
+        default: "~"
+      command:
+        type: string
+        required: true
+
+    secrets:
+      ssh_key:
+        required: true
+
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute remote command via SSH
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          debug: ${{ inputs.debug }}
+          host: ${{ inputs.ssh_host }}
+          port: ${{ inputs.ssh_port }}
+          username: ${{ inputs.ssh_user }}
+          key: ${{ secrets.ssh_key }}
+          script: |
+            cd ${{ inputs.remote_workdir }}
+            ${{ inputs.command }}
