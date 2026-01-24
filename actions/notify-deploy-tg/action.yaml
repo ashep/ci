@@ -1,0 +1,31 @@
+name: Notify Telegram
+description: Send a notification to the Telegram channel
+inputs:
+  tg_channel_id:
+    required: true
+    description: Telegram channel ID
+  tg_token:
+    required: true
+    description: Telegram token
+  caption:
+    required: true
+    description: The message
+  icon:
+    required: false
+    description: Icon
+    default: ✅
+
+runs:
+  using: composite
+  steps:
+    - uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.tg_channel_id }}
+        token: ${{ inputs.tg_token }}
+        format: markdown
+        disable_web_page_preview: true
+        message: |
+          ${{ inputs.icon }} `${{ github.event.repository.name }}:${{ github.ref_name }}` ${{ inputs.caption }}
+
+          Author: `${{ github.actor }}`
+          Message: [${{ github.event.commits[0].message }}](https://github.com/${{ github.repository }}/commit/${{github.sha}})
