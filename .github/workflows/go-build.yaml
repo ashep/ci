@@ -61,6 +61,8 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          set -e
+          
           APP_VERSION="${{ inputs.app_version }}"
           if [ -z "$APP_VERSION" ]; then
             if [ "${{ github.ref_type }}" == "tag" ]; then
