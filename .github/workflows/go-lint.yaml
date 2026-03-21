@@ -4,7 +4,7 @@ on:
     inputs:
       go_version:
         type: string
-        default: 1.25.7
+        default: 1.26
       go_private:
         type: string
       govet_enabled:
@@ -33,7 +33,7 @@ on:
         default: false
       golangcilint_version:
         type: string
-        default: 2.5.0
+        default: 2.11.3
     secrets:
       private_key:
         required: false
