@@ -20,13 +20,13 @@ tasks:
     cmds:
       - go run -race -tags osusergo,netgo -ldflags="-X 'github.com/ashep/go-apprun.appName={{.APP_NAME}}' -X 'github.com/ashep/go-apprun.appVer={{.APP_VERSION}}'" main.go {{.CLI_ARGS}}
 
-  gen:
-    desc: Generate go code
+  gen-go:
+    desc: Generate Go code
     cmds:
       - go generate -v ./...
 
-  gen-proto:
-    desc: Generate protobuf code
+  gen-buf:
+    desc: Generate Buf code
     cmds:
       - rm -rvf ./sdk/proto
       - buf lint proto
