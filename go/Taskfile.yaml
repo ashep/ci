@@ -29,7 +29,7 @@ tasks:
     desc: Generate Buf code
     cmds:
       - buf dep update
-      - buf lint --path ./proto
+      - buf lint
       - rm -rvf ./sdk/proto
       - buf generate
 
