@@ -28,8 +28,9 @@ tasks:
   gen-buf:
     desc: Generate Buf code
     cmds:
+      - buf dep update
+      - buf lint --path ./proto
       - rm -rvf ./sdk/proto
-      - buf lint proto
       - buf generate
 
   build:
