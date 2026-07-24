@@ -1,0 +1,10 @@
+version: "3"
+
+tasks:
+  gen:
+    desc: Generate Buf code
+    cmds:
+      - buf dep update
+      - buf lint
+      - rm -rvf ./sdk/proto
+      - buf generate
