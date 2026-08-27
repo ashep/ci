@@ -7,38 +7,75 @@ on:
         default: 1.26.7
       go_private:
         type: string
+      dotenv:
+        type: string
+        required: false
     secrets:
       private_key:
+        required: false
+      dotenv:
         required: false
 
 jobs:
   unit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go_version }}
-      - uses: ashep/ci/actions/go-private@v1
+      - name: Set up go-private
+        uses: ashep/ci/actions/go-private@v1
         with:
           go_private: ${{ inputs.go_private }}
           private_key: ${{ secrets.private_key }}
-      - run: go mod vendor
-      - run: go test -v -mod=vendor -race ./...
+      - name: Vendoring
+        run: go mod vendor
+      - name: Add .env variables
+        run: |
+          (cat <<'EOF'
+          ${{ inputs.dotenv }}
+          EOF
+          ) >> ${{ inputs.workdir }}/.env
+
+          (cat <<'EOF'
+          ${{ secrets.dotenv }}
+          EOF
+          ) >> ${{ inputs.workdir }}/.env
+      - name: Run unit tests
+        run: go test -v -mod=vendor -race ./...
 
   func:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go_version }}
-      - uses: ashep/ci/actions/go-private@v1
+      - name: Set up go-private
+        uses: ashep/ci/actions/go-private@v1
         with:
           go_private: ${{ inputs.go_private }}
           private_key: ${{ secrets.private_key }}
-      - run: go mod vendor
-      - run: |
+      - name: Vendoring
+        run: go mod vendor
+      - name: Add .env variables
+        run: |
+          (cat <<'EOF'
+          ${{ inputs.dotenv }}
+          EOF
+          ) >> ${{ inputs.workdir }}/.env
+
+          (cat <<'EOF'
+          ${{ secrets.dotenv }}
+          EOF
+          ) >> ${{ inputs.workdir }}/.env
+      - name: Run func tests
+        run: |
           if [ -f docker-compose.tests.yaml ]; then
             docker compose -f docker-compose.tests.yaml up --remove-orphans -d
             docker compose -f docker-compose.tests.yaml run --rm --remove-orphans tests go test -v -mod=vendor -tags=functest ./tests/...
