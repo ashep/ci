@@ -7,7 +7,7 @@ on:
         default: "."
       go_version:
         type: string
-        default: 1.26.9
+        default: 1.27.2
       go_private:
         type: string
       dotenv:
